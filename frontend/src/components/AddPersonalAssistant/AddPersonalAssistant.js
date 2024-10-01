@@ -27,10 +27,24 @@ const Addpa = () => {
     fetchAssistants();
   }, []);
 
+
+  //handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  
+    if (name === "name") {
+      if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
+
+    else if (name === "mobile") {
+      if (/^[0-9]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,6 +94,10 @@ const validateForm = () => {
   setError(newError);
   return isValid;
 };
+//handle focus
+const handleFocus = (field) => {
+  setError((prevError) => ({ ...prevError, [field]: "" }));
+};
 
   const handleEdit = (assistant) => {
     setFormData(assistant); 
@@ -98,6 +116,8 @@ const validateForm = () => {
       console.error("Error deleting assistant:", error);
     }
   };
+
+ 
 
   const resetForm = () => {
     setFormData({ id: null, name: "", mobile: "" });
@@ -139,12 +159,14 @@ const validateForm = () => {
                         <input
                           type="text"
                           className="form-control"
+                          maxLength={20}
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="Enter PA Name"
+                          onFocus={() => handleFocus('name')}
                         />
-                         {Error.name && <p style={{ color: "red", fontSize: "12px" }}>{Error.name}</p>}
+                         {Error.name && <p style={{ color: "red", fontSize: "11px" }}>{Error.name}</p>}
                     
                       </div>
                       <div className="col-xl-4 col-md-4">
@@ -157,8 +179,9 @@ const validateForm = () => {
                           value={formData.mobile}
                           onChange={handleChange}
                           placeholder="Enter Mobile No."
+                          onFocus={() => handleFocus('mobile')}
                         />
-                         {Error.mobile && <p style={{ color: "red", fontSize: "12px" }}>{Error.mobile}</p>}
+                         {Error.mobile && <p style={{ color: "red", fontSize: "11px" }}>{Error.mobile}</p>}
                          
 
 
