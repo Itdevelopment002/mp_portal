@@ -1,0 +1,263 @@
+import React from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { HiOutlineArrowNarrowRight } from "react-icons/hi";
+import { AiOutlineCalendar } from "react-icons/ai";
+import { Link } from "react-router-dom";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
+// import "../AddNewEntry/addNewEntry.css"
+
+const AddEntryPage = () => {
+  const [entries, setEntries] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [formData, setFormData] = useState({
+    inwardNo: "",
+    entryDate: "",
+    subject: "",
+    description: "",
+  });
+
+  useEffect(() => {
+    fetchEntries();
+    fetchSubjects();
+  }, []);
+
+  const fetchEntries = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/entries");
+      setEntries(response.data);
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/subjects");
+      setSubjects(response.data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("http://localhost:5000/api/add-entry", formData);
+      fetchEntries();
+      setFormData({
+        inwardNo: "",
+        entryDate: "",
+        subject: "",
+        description: "",
+      });
+    } catch (error) {
+      console.error("Error adding entry:", error);
+    }
+  };
+  return (
+    <>
+      <div className="main-content app-content">
+        <div className="container-fluid">
+          <div className="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <nav>
+                <ol className="breadcrumb d-flex align-items-center mb-1">
+                  <li className="breadcrumb-item">
+                    <Link to="/dashboard">Home</Link>
+                  </li>
+                  <HiOutlineArrowNarrowRight className="mx-2 align-self-center" />
+                  <li className="breadcrumb-item active" aria-current="page">
+                    Add New Entry
+                  </li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-xl-12">
+              <div className="card custom-card">
+                <div className="card-header justify-content-between">
+                  <div className="card-title fs-5">Add New Entry</div>
+                  <div className="prism-toggle">
+                    <button
+                      className="btn btn-success-gradient btn-wave waves-effect waves-light"
+                      type="file"
+                      id="formFile"
+                    >
+                      Import Excel
+                    </button>
+                  </div>
+                </div>
+                <div className="card-body">
+                  <form onSubmit={handleSubmit}>
+                    <div className="row gy-3">
+                      <div className="col-xl-4 col-md-4">
+                        <label className="form-label">
+                          Inward No. <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="input-rounded"
+                          name="inwardNo"
+                          value={formData.inwardNo}
+                          onChange={handleChange}
+                          placeholder="IN/0001/23-8-24"
+                          required
+                        />
+                      </div>
+
+                      <div className="col-xl-4 col-md-4">
+                        <div className="form-group">
+                          <label htmlFor="datePicker" className="form-label">
+                            Entry Date <span className="text-danger">*</span>
+                          </label>
+                          <div className="input-group">
+                            <div className="input-group-text text-muted">
+                              <AiOutlineCalendar size={15} />
+                            </div>
+
+                            <Flatpickr
+                              id="datePicker"
+                              className="flatpickr-input form-control"
+                              placeholder="Human friendly dates"
+                              value={formData.entryDate}
+                              options={{
+                                dateFormat: "F j, Y",
+                                monthSelectorType: "dropdown",
+                                prevArrow:
+                                  '<svg><path d="M10 5L5 10L10 15"></path></svg>',
+                                nextArrow:
+                                  '<svg><path d="M10 5L5 10L10 15"></path></svg>',
+                              }}
+                              onChange={(date) =>
+                                handleChange({
+                                  target: { name: "entryDate", value: date[0] },
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="col-xl-4 col-md-4">
+                        <label htmlFor="subject-select" className="form-label">
+                          Subject <span className="text-danger">*</span>
+                        </label>
+                        <select
+                          className="form-select"
+                          id="subject-select"
+                          name="subject"
+                          value={formData.subject}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option selected>Select Subject</option>
+                          {subjects.map((subject, index) => (
+                            <option key={index} value={subject.subject_name}>
+                              {subject.subject_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col-xl-8 col-md-6">
+                        <label htmlFor="description" className="form-label">
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="description"
+                          name="description"
+                          value={formData.description}
+                          onChange={handleChange}
+                          placeholder="Enter Description"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <button
+                        to="#submit"
+                        className="btn btn-purple-gradient btn-wave waves-effect waves-light"
+                      >
+                        Submit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger-gradient btn-wave waves-effect waves-light mx-1"
+                        onClick={() =>
+                          setFormData({
+                            inwardNo: "",
+                            entryDate: "",
+                            subject: "",
+                            description: "",
+                          })
+                        }
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-xl-12">
+              <div className="card custom-card overflow-hidden">
+                <div className="card-body p-0">
+                  <div className="table-responsive">
+                    <table className="table text-nowrap table-bordered border-primary">
+                      <thead className="table-warning">
+                        <tr>
+                          <th>Sr. No.</th>
+                          <th>Inward No.</th>
+                          <th>Entry Date</th>
+                          <th>Subject</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {entries.map((entry, index) => (
+                          <tr key={entry.id} className="table-light">
+                            <td>
+                              {(index + 1).toString().padStart(2, '0')}
+                            </td>
+                            <td>{entry.inward_no}</td>
+
+                            <td>
+                              {new Date(entry.entry_date).toLocaleDateString('en-GB', {
+                                day: '2-digit',    // Ensures two-digit day (e.g., 01)
+                                month: '2-digit',  // Ensures two-digit month (e.g., 09)
+                                year: 'numeric'    // Displays the full year (e.g., 2024)
+                              }).replace(/\//g, '-')}
+                            </td>
+
+                            <td>{entry.subject}</td>
+                            <td>{entry.description}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default AddEntryPage;
