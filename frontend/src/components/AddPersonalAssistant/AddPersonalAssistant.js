@@ -10,6 +10,7 @@ const Addpa = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [Error,setError]=useState({name:"",mobile:""});
 
   const fetchAssistants = async () => {
     try {
@@ -33,6 +34,9 @@ const Addpa = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -52,6 +56,30 @@ const Addpa = () => {
       console.error("Error submitting form:", error);
     }
   };
+
+//validations
+
+const validateForm = () => {
+  const newError = { name: "", mobile: "" };
+  let isValid = true;
+
+  if (!formData.name.trim()) {
+    newError.name = "*Name is required.";
+    isValid = false;
+  }
+
+  const mobilePattern = /^[0-9]{10}$/;
+  if (!formData.mobile) {
+    newError.mobile = "*Mobile number is required.";
+    isValid = false;
+  } else if (!mobilePattern.test(formData.mobile)) {
+    newError.mobile = "*Mobile number must be 10 digits.";
+    isValid = false;
+  }
+
+  setError(newError);
+  return isValid;
+};
 
   const handleEdit = (assistant) => {
     setFormData(assistant); 
@@ -116,17 +144,24 @@ const Addpa = () => {
                           onChange={handleChange}
                           placeholder="Enter PA Name"
                         />
+                         {Error.name && <p style={{ color: "red", fontSize: "12px" }}>{Error.name}</p>}
+                    
                       </div>
                       <div className="col-xl-4 col-md-4">
                         <label className="form-label">Mobile No.</label>
                         <input
                           type="text"
+                          maxLength={10}
                           className="form-control"
                           name="mobile"
                           value={formData.mobile}
                           onChange={handleChange}
                           placeholder="Enter Mobile No."
                         />
+                         {Error.mobile && <p style={{ color: "red", fontSize: "12px" }}>{Error.mobile}</p>}
+                         
+
+
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">
