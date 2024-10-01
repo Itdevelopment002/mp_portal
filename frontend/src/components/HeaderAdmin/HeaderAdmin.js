@@ -37,8 +37,16 @@ const HeaderAdmin = () => {
                     {/* <!-- End::header-element --> */}
 
                     {/* <!-- Start::header-element --> */}
-                    <div class="header-element mx-lg-0 mx-2 d-md-none d-block my-auto">
-                        <Link aria-label="Hide Sidebar" class="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle" data-bs-toggle="sidebar" to="/javascript:void(0);"><span></span></Link>
+                    <div className="header-element mx-lg-0 mx-2 d-lg-none d-block my-auto">
+                        <Link
+                            aria-label="Toggle Sidebar"
+                            className="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#sidebarMenu"
+                            to="#"
+                        >
+                            <span></span>
+                        </Link>
                     </div>
                     {/* <!-- End::header-element --> */}
 

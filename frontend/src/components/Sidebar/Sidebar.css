@@ -61,3 +61,29 @@
     margin: 0;
     padding: 0.2rem 0.5rem;
 }
+
+
+
+
+.sidebar {
+    /* transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; */
+    /* transition: left 0.3s ease; */
+    transition: visibility 0.3s ease-in-out;
+}
+
+
+/* #responsive-overlay {
+    visibility: hidden;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 101; 
+    background-color: rgba(15, 23, 42, 0.5); 
+    transition: visibility 0.3s ease-in-out;
+}
+
+#responsive-overlay.active {
+    visibility: visible;
+} */
