@@ -11,6 +11,7 @@ const AddApplicationStatus = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const[Error, setError]=useState({status:""});
 
   const fetchStatus = async () => {
     try {
@@ -27,13 +28,42 @@ const AddApplicationStatus = () => {
     fetchStatus();
   }, []);
 
+//validation
+
+const validateForm=()=>{
+  const newError={status:""};
+  let isValid=true;
+
+  if(!formData.status.trim()){
+    newError.status="*status name is required";
+    isValid=false;
+  }
+
+  setError(newError);
+  return isValid;
+}
+
+//handle Foucus
+
+const handleFocus=(field)=>{
+  setError((prevError)=>({...prevError,[field]:""}));
+}
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if(name==="status"){
+      if(/^[A-Za-z\s]*$/.test(value)|| value === ""){
+        setFormData({ ...formData, [name]: value });
+     }
+   }
   };
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -110,7 +140,10 @@ const AddApplicationStatus = () => {
                           value={formData.status}
                           onChange={handleChange}
                           placeholder="Enter Status"
+                          onFocus={()=>handleFocus('status')}
                         />
+                        {Error.status && <p style={{ color: "red", fontSize: "11px" }}>{Error.status}</p>}
+
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">

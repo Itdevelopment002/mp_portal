@@ -11,6 +11,7 @@ const AddTaluka = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const[Error, setError]=useState({taluka_name:""});
 
   // Fetch Booths
   const fetchTalukas = async () => {
@@ -28,15 +29,46 @@ const AddTaluka = () => {
     fetchTalukas();
   }, []);
 
+//validation
+
+const validateForm=()=>{
+  const newError={sender:""};
+  let isValid=true;
+
+  if(!formData.taluka_name.trim()){
+    newError.taluka_name="*taluka name is required";
+    isValid=false;
+  }
+
+  setError(newError);
+  return isValid;
+}
+
+//handle Foucus
+
+const handleFocus=(field)=>{
+  setError((prevError)=>({...prevError,[field]:""}));
+}
+  
+
+
+
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if(name==="taluka_name"){
+      if(/^[A-Za-z\s]*$/.test(value)|| value === ""){
     setFormData({ ...formData, [name]: value });
+      }
+    }
   };
 
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -116,7 +148,10 @@ const AddTaluka = () => {
                           value={formData.taluka_name}
                           onChange={handleChange}
                           placeholder="Enter Taluka Name"
+                          onFocus={()=>handleFocus('taluka_name')}
                         />
+                        {Error.taluka_name && <p style={{ color: "red", fontSize: "11px" }}>{Error.taluka_name}</p>}
+
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">
