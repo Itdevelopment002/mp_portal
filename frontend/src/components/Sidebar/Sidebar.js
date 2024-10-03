@@ -58,7 +58,7 @@ const Sidebar = () => {
       <aside class="app-sidebar sticky" id="sidebar">
 
         <div class="main-sidebar-header">
-          <Link to="dashboard.php" class="header-logo">
+          <Link to="dashboard" class="header-logo">
             <img src={logo} alt="logo" class="desktop-logo" />
             <img src={logo} alt="logo" class="toggle-dark" />
             <img src={logo} alt="logo" class="desktop-dark" />
@@ -151,7 +151,7 @@ const Sidebar = () => {
                           </Link>
                         </li>
                         <li className={`slide has-sub ${isOpen ? 'open' : ''}`}>
-                          <Link to="#." className="side-menu__item" onClick={toggleDropdown}>
+                          <Link  className="side-menu__item" onClick={toggleDropdown}>
                             <FaChevronDown className="side-menu__angle" size={11} />
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
