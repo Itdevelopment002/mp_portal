@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { Link } from "react-router-dom";
@@ -11,6 +11,7 @@ const AddBoothNo = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [Error,setError]=useState({booth_no:""});
 
   const fetchBooths = async () => {
     try {
@@ -27,13 +28,44 @@ const AddBoothNo = () => {
     fetchBooths();
   }, []);
 
+
+//validations
+
+const validateForm = () => {
+  const newError = { booth_no:"" };
+  let isValid = true;
+
+  if (!formData.booth_no.trim()) {
+    newError.booth_no = "*Booth Number is required.";
+    isValid = false;
+  }
+
+
+  setError(newError);
+  return isValid;
+};
+
+//handle focus
+const handleFocus = (field) => {
+  setError((prevError) => ({ ...prevError, [field]: "" }));
+};
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "booth_no") {
+      if (/^[0-9]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
+    
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -107,10 +139,13 @@ const AddBoothNo = () => {
                           type="text"
                           className="form-control"
                           name="booth_no"
+                          maxLength={5}
                           value={formData.booth_no}
                           onChange={handleChange}
                           placeholder="Enter Booth No."
+                          onFocus={() => handleFocus('booth_no')}
                         />
+                        {Error.booth_no && <p style={{ color: "red", fontSize: "11px" }}>{Error.booth_no}</p>}
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">

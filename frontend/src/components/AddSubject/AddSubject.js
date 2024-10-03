@@ -11,6 +11,31 @@ const AddSubject = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // To control the edit modal
   const [deleteId, setDeleteId] = useState(null);
+  const [Error,setError]=useState({subject_name:""});
+
+
+
+
+
+  //validations
+
+const validateForm = () => {
+  const newError = { subject_name:""};
+  let isValid = true;
+
+  if (!formData.subject_name.trim()) {
+    newError.subject_name = "*subject Name is required.";
+    isValid = false;
+  }
+  
+  setError(newError);
+  return isValid;
+};
+
+//handle focus
+const handleFocus = (field) => {
+  setError((prevError) => ({ ...prevError, [field]: "" }));
+};
 
   // Fetch Personal Assistants
   const fetchSubjects = async () => {
@@ -31,12 +56,19 @@ const AddSubject = () => {
   // Handle form input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "subject_name") {
+      if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
   };
 
   // Handle form submission for adding or updating
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -110,12 +142,16 @@ const AddSubject = () => {
                         <label className="form-label">Subject Name</label>
                         <input
                           type="text"
+                          maxLength={50}
                           className="form-control"
                           name="subject_name"
                           value={formData.subject_name}
                           onChange={handleChange}
                           placeholder="Enter Subject"
+                          onFocus={() => handleFocus('subject_name')}
                         />
+                        {Error.subject_name && <p style={{ color: "red", fontSize: "11px" }}>{Error.subject_name}</p>}
+
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">
