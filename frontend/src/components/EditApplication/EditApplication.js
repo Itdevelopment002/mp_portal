@@ -9,6 +9,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import HeaderAdmin from '../HeaderAdmin/HeaderAdmin';
 import Sidebar from '../Sidebar/Sidebar';
 import FooterAdmin from '../FooterAdmin/FooterAdmin';
+import Swal from 'sweetalert2'; 
+
+
 const EditApplication = () => {
   const { id } = useParams(); // Get the ID from the URL
   const navigate = useNavigate(); // Hook for navigation after updating
@@ -141,7 +144,16 @@ const EditApplication = () => {
 
       // PUT request to update grievance
       await axios.put(`http://localhost:5000/api/grievances/${id}`, updatedGrievance);
-      alert("Grievance updated successfully!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Grievance updated successfully!',
+        timer: 2000, 
+        timerProgressBar: true, 
+        showConfirmButton: false, 
+    }).then(() => {
+        console.log('Alert closed');
+    });
       navigate("/all-grievance-list"); // Redirect to grievance list after update
     } catch (err) {
       console.error("Error updating grievance:", err);

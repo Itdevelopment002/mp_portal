@@ -648,7 +648,7 @@ const AllGrievanceList = () => {
                                       : ""
                                   }`}
                               >
-                                <td className="text-center">
+                                <td >
                                   {(index + 1 + offset).toString().padStart(2, '0')}
                                 </td>
 
