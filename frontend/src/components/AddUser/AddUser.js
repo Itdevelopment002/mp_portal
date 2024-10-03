@@ -8,9 +8,9 @@ const AddUser = () => {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
-    subject_name: "",
+    name: "",
     mobile: "",
-    user_permission: "User",
+    user_permission: "",
     username: "",
     password: "",
     confirmPassword: "",
@@ -19,6 +19,57 @@ const AddUser = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // To control the edit modal
   const [deleteId, setDeleteId] = useState(null);
+  const[Error, setError]=useState({
+    name: "",
+    mobile: "",
+    user_permission: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const validateForm=()=>{
+    const newError={name:"",mobile: "",user_permission: "", username: "",password: "",confirmPassword: ""};
+    let isValid=true;
+  
+    if(!formData.name){
+      newError.name="*Subject name is required";
+      isValid=false;
+    }
+
+    if(!formData.username){
+      newError.username="*User name is required";
+      isValid=false;
+    }
+    if(!formData.user_permission){
+      newError.user_permission="*User permission is required";
+      isValid=false;
+    }
+
+    if(!formData.mobile){
+      newError.mobile="*mobile number is required";
+      isValid=false;
+    }
+
+    if(!formData.password){
+      newError.password="*Password is required";
+      isValid=false;
+    }
+
+    if(!formData.confirmPassword){
+      newError.confirmPassword="*mobile number is required";
+      isValid=false;
+    }
+
+    
+  
+    setError(newError);
+    return isValid;
+  }
+
+  const handleFocus=(field)=>{
+    setError((prevError)=>({...prevError,[field]:""}));
+  }
 
   const fetchUsers = async () => {
     try {
@@ -40,6 +91,9 @@ const AddUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
 
     // Password matching check
     if (formData.password !== formData.confirmPassword) {
@@ -140,7 +194,10 @@ const AddUser = () => {
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="Enter User Full Name"
+                          onFocus={()=>handleFocus('name')}
                         />
+                        {Error.name && <p style={{ color: "red", fontSize: "11px" }}>{Error.name}</p>}
+
                       </div>
                       <div class="col-xl-4 col-md-4">
                         <label for="input-rounded" class="form-label">
@@ -154,7 +211,10 @@ const AddUser = () => {
                           value={formData.mobile}
                           onChange={handleChange}
                           placeholder="Enter Mobile No."
+                          onFocus={()=>handleFocus('mobile')}
                         />
+                        {Error.mobile && <p style={{ color: "red", fontSize: "11px" }}>{Error.mobile}</p>}
+
                       </div>
                       <div className="col-xl-4 col-md-4">
                         <label htmlFor="user-select" className="form-label">
@@ -166,11 +226,14 @@ const AddUser = () => {
                           name="user_permission"
                           value={formData.user_permission}
                           onChange={handleChange}
-                          required
+                          onFocus={()=>handleFocus('user_permission')}
                         >
+                          <option value="">Select user permission</option>
                           <option value="User">User</option>
                           <option value="Admin">Admin</option>
                         </select>
+                        {Error.user_permission && <p style={{ color: "red", fontSize: "11px" }}>{Error.user_permission}</p>}
+
                       </div>
                       <div class="col-xl-4 color-selection">
                         <label for="product-color-add" class="form-label">
@@ -184,7 +247,10 @@ const AddUser = () => {
                           value={formData.username}
                           onChange={handleChange}
                           placeholder="Enter User Name"
+                          onFocus={()=>handleFocus('username')}
                         />
+                        {Error.username && <p style={{ color: "red", fontSize: "11px" }}>{Error.username}</p>}
+
                       </div>
                       <div class="col-xl-4 color-selection">
                         <label for="product-color-add" class="form-label">
@@ -198,7 +264,10 @@ const AddUser = () => {
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Enter User Password"
+                          onFocus={()=>handleFocus('password')}
                         />
+                        {Error.password && <p style={{ color: "red", fontSize: "11px" }}>{Error.password}</p>}
+                        
                       </div>
                       <div class="col-xl-4 color-selection">
                         <label for="product-color-add" class="form-label">
@@ -212,7 +281,10 @@ const AddUser = () => {
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           placeholder="Enter Confirm Password"
+                          onFocus={()=>handleFocus('confirmPassword')}
                         />
+                        {Error.confirmPassword && <p style={{ color: "red", fontSize: "11px" }}>{Error.confirmPassword}</p>}
+
                       </div>
                     </div>
                     <div className="mt-5 col-xl-4">
