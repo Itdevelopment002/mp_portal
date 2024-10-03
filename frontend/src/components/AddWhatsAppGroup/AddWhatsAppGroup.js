@@ -11,6 +11,7 @@ const AddWhatsAppGroup = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // To control the edit modal
   const [deleteId, setDeleteId] = useState(null);
+  const[Error, setError]=useState({group_name:""});
 
   // Fetch Personal Assistants
   const fetchGroups = async () => {
@@ -28,15 +29,47 @@ const AddWhatsAppGroup = () => {
     fetchGroups();
   }, []);
 
-  // Handle form input change
+
+  //validation
+
+const validateForm=()=>{
+  const newError={group_name:""};
+  let isValid=true;
+
+  if(!formData.group_name.trim()){
+    newError.group_name="*group name is required";
+    isValid=false;
+  }
+
+  setError(newError);
+  return isValid;
+}
+
+//handle Foucus
+
+const handleFocus=(field)=>{
+  setError((prevError)=>({...prevError,[field]:""}));
+}
+  
+
+
+
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if(name==="group_name"){
+      if(/^[A-Za-z\s]*$/.test(value)|| value === ""){
     setFormData({ ...formData, [name]: value });
+      }
+    }
   };
-
+ 
   // Handle form submission for adding or updating
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -117,7 +150,10 @@ const AddWhatsAppGroup = () => {
                           value={formData.group_name}
                           onChange={handleChange}
                           placeholder="Enter Whatsapp Group"
+                          onFocus={()=>handleFocus('group_name')}
                         />
+                        {Error.group_name && <p style={{ color: "red", fontSize: "11px" }}>{Error.group_name}</p>}
+
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">
