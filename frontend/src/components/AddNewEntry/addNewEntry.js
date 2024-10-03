@@ -18,6 +18,68 @@ const AddEntryPage = () => {
     subject: "",
     description: "",
   });
+  const [Error, setError] = useState({
+    inwardNo: "",
+    entryDate: "",
+    subject: "",
+    description: "",
+  })
+
+  //validation
+
+  const validateForm = () => {
+    const newError = { inwardNo: "", entryDate: "", subject: "", description: "" };
+    let isValid = true;
+
+    // Validate 'inwardNo' (must be non-empty and alphanumeric)
+    if (!formData.inwardNo.trim()) {
+      newError.inwardNo = "*Inward number is required";
+      isValid = false;
+    } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(formData.inwardNo)) {
+      newError.inwardNo = "*Inward number must contain both letters and numbers";
+      isValid = false;
+    }
+
+   
+    if (!formData.entryDate) {
+      newError.entryDate = "*Entry Date is required";
+      isValid = false;
+    } else {
+      const dateValue = new Date(formData.entryDate);
+      if (isNaN(dateValue.getTime())) {
+        newError.entryDate = "*Please enter a valid date";
+        isValid = false;
+      }
+    }
+
+    
+    if (!formData.subject.trim()) {
+      newError.subject = "*Subject name is required";
+      isValid = false;
+    } else if (!/^[A-Za-z\s]*$/.test(formData.subject)) {
+      newError.subject = "*Only alphabets are allowed in Subject";
+      isValid = false;
+    }
+
+    
+    if (!formData.description.trim()) {
+      newError.description = "*Description name is required";
+      isValid = false;
+    } else if (!/^[A-Za-z\s]*$/.test(formData.description)) {
+      newError.description = "*Only alphabets are allowed in Description";
+      isValid = false;
+    }
+
+    
+    setError(newError);
+    return isValid;
+  };
+
+//handle focus 
+  const handleFocus = (field) => {
+    setError((prevError) => ({ ...prevError, [field]: "" }));
+  }
+
 
   useEffect(() => {
     fetchEntries();
@@ -42,13 +104,50 @@ const AddEntryPage = () => {
     }
   };
 
+  //handle change 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let newError = {}; 
+   
+    if (name === "description" || name === "subject") {
+      if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+        newError[name] = "";  // Clear any error if input is valid
+      } else {
+        newError[name] = `*Only alphabets allowed for ${name}`;
+      }
+    }
+
+
+    if (name === "inwardNo") {
+
+      setFormData({ ...formData, [name]: value });
+
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(value) || value === "") {
+        newError[name] = "";
+      } else {
+        newError[name] = "*Inward number must contain both letters and numbers";
+      }
+    }
+
+
+    if (name === "entryDate") {
+      const dateValue = new Date(value);
+      if (!isNaN(dateValue.getTime())) {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
+
+
+    setError((prevError) => ({ ...prevError, ...newError }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       await axios.post("http://localhost:5000/api/add-entry", formData);
       fetchEntries();
@@ -112,8 +211,11 @@ const AddEntryPage = () => {
                           value={formData.inwardNo}
                           onChange={handleChange}
                           placeholder="IN/0001/23-8-24"
-                          required
+
+                          onFocus={() => handleFocus('inwardNo')}
                         />
+                        {Error.inwardNo && <p style={{ color: "red", fontSize: "11px" }}>{Error.inwardNo}</p>}
+
                       </div>
 
                       <div className="col-xl-4 col-md-4">
@@ -131,6 +233,7 @@ const AddEntryPage = () => {
                               className="flatpickr-input form-control"
                               placeholder="Human friendly dates"
                               value={formData.entryDate}
+                              onFocus={() => handleFocus('entryDate')}
                               options={{
                                 dateFormat: "F j, Y",
                                 monthSelectorType: "dropdown",
@@ -145,7 +248,10 @@ const AddEntryPage = () => {
                                 })
                               }
                             />
+
                           </div>
+                          {Error.entryDate && <p style={{ color: "red", fontSize: "11px" }}>{Error.entryDate}</p>}
+
                         </div>
                       </div>
 
@@ -159,7 +265,8 @@ const AddEntryPage = () => {
                           name="subject"
                           value={formData.subject}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('subject')}
+
                         >
                           <option selected>Select Subject</option>
                           {subjects.map((subject, index) => (
@@ -168,6 +275,8 @@ const AddEntryPage = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.subject && <p style={{ color: "red", fontSize: "11px" }}>{Error.subject}</p>}
+
                       </div>
                       <div className="col-xl-8 col-md-6">
                         <label htmlFor="description" className="form-label">
@@ -181,7 +290,10 @@ const AddEntryPage = () => {
                           value={formData.description}
                           onChange={handleChange}
                           placeholder="Enter Description"
+                          onFocus={() => handleFocus('description')}
                         />
+                        {Error.description && <p style={{ color: "red", fontSize: "11px" }}>{Error.description}</p>}
+
                       </div>
                     </div>
                     <div className="mt-3">

@@ -11,6 +11,7 @@ const AddComplaintSender = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); 
   const [deleteId, setDeleteId] = useState(null);
+  const[Error, setError]=useState({sender:""});
 
   const fetchComplaints = async () => {
     try {
@@ -27,13 +28,40 @@ const AddComplaintSender = () => {
     fetchComplaints();
   }, []);
 
+//validation
+
+const validateForm=()=>{
+  const newError={sender:""};
+  let isValid=true;
+
+  if(!formData.sender.trim()){
+    newError.sender="*Sender name is required";
+    isValid=false;
+  }
+
+  setError(newError);
+  return isValid;
+}
+
+//handle Foucus
+
+const handleFocus=(field)=>{
+  setError((prevError)=>({...prevError,[field]:""}));
+}
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if(name==="sender"){
+      if(/^[A-Za-z\s]*$/.test(value)|| value === ""){
+        setFormData({ ...formData, [name]: value });
+     }
+   }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validateForm()){
+      return;
+    }
     try {
       if (isEditing) {
         await axios.put(
@@ -113,7 +141,10 @@ const AddComplaintSender = () => {
                           name="sender"
                           value={formData.sender}
                           onChange={handleChange}
+                          onFocus={()=>handleFocus('sender')}
                         />
+                        {Error.sender && <p style={{ color: "red", fontSize: "11px" }}>{Error.sender}</p>}
+
                       </div>
                       <div className="mt-5 col-xl-4">
                         <button className="btn btn-purple-gradient">
