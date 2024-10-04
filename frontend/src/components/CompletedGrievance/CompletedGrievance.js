@@ -127,18 +127,18 @@ const CompletedGrievance = () => {
             <tbody>
               ${grievances.map((grievance, index) => `
                 <tr>
-                  <td>${(index + 1 + offset).toString().padStart(2, '0')} </td>
+                  <td>${(index + 1 + offset).toString().padStart(2, '0')}</td>
                   <td>${grievance.inwardNo}</td>
                   <td>${grievance.subject}</td>
                   <td>${grievance.fullName}</td>
                   <td>${grievance.handledBy}</td>
                   <td>${grievance.complaintSentTo}</td>
-                  <td>${new Date(grievance.date).toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })}</td>
-                  <td>October 21, 2024</td>
+                  <td>${new Date(grievance.date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",     // To get the day as two digits (e.g., 24)
+                                  month: "short",     // To get the short form of the month (e.g., Aug)
+                                  year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+                                }).replace(/ /g, ', ')}</td>
+                  <td>21,Oct,2024</td>
                   <td><span class="badge bg-danger">${grievance.applicationStatus}</span></td>
                 </tr>
               `).join("")}
@@ -156,45 +156,48 @@ const CompletedGrievance = () => {
   };
 
 
-  // Copy Code
 
   const [showPopup, setShowPopup] = useState(false);
   const copyToClipboard = () => {
+    const tableHeadings = 'Sr. No.\tInward No.\tSubject\tComplainer\tHandled By\tComplaint Sent to\tReceive Date\tClosed Date\tStatus';
+  
     const dataStr = grievances
       .map(
         (grievance, index) =>
-          `${(index + 1 + offset).toString().padStart(2, '0')}\t${grievance.inwardNo}\t${grievance.subject}\t${grievance.fullName}\t${grievance.handledBy}\t${grievance.complaintSentTo}\t${new Date(grievance.date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}\t${'October 21, 2024'}\t${grievance.applicationStatus}`
+          `${(index + 1 + offset).toString().padStart(2, '0')}\t${grievance.inwardNo}\t${grievance.subject}\t${grievance.fullName}\t${grievance.handledBy}\t${grievance.complaintSentTo}\t${new Date(grievance.date).toLocaleDateString("en-GB", {
+            day: "2-digit",     
+            month: "short",     
+            year: "numeric",    
+          }).replace(/ /g, ', ')}\t${'21,Oct,2024'}\t${grievance.applicationStatus}`
       )
       .join('\n');
-
-
+  
+    const fullDataStr = `${tableHeadings}\n${dataStr}`;
+  
     navigator.clipboard
-      .writeText(dataStr)
+      .writeText(fullDataStr)
       .then(() => {
         setShowPopup(true);
         setTimeout(() => {
-          setShowPopup(false);
+          setShowPopup(false); // Hide popup after 1.5 seconds
         }, 1500);
       })
       .catch((err) => {
         console.error('Failed to copy data: ', err);
       });
   };
+  
 
 
   // Function to download CSV
   const downloadCSV = () => {
     const csvContent = "data:text/csv;charset=utf-8," +
       grievances.map(grievance =>
-        `${grievance.inwardNo},${grievance.subject},${grievance.fullName},${grievance.handledBy},${grievance.complaintSentTo},${new Date(grievance.date).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })},${'October 21, 2024'},${grievance.applicationStatus}`
+        `${grievance.inwardNo},${grievance.subject},${grievance.fullName},${grievance.handledBy},${grievance.complaintSentTo},${new Date(grievance.date).toLocaleDateString("en-GB", {
+          day: "2-digit",     // To get the day as two digits (e.g., 24)
+          month: "short",     // To get the short form of the month (e.g., Aug)
+          year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+        }).replace(/ /g, ', ')},${'21,Oct,2024'},${grievance.applicationStatus}`
       ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -210,21 +213,18 @@ const CompletedGrievance = () => {
   const downloadExcel = () => {
     // 1. Add S.No. column with proper indexing
     const formattedGrievances = grievances.map((grievance, index) => ({
-      "S.No.": index + 1,
+      "S.No.": (index + 1 + offset).toString().padStart(2, '0'),
       "Inward No.": grievance.inwardNo,
       "Subject": grievance.subject,
       "Complainer": grievance.fullName,
       "Handled By": grievance.handledBy,
       "Complaint Sent to": grievance.complaintSentTo,
-      "Receive Date": new Date(grievance.date).toLocaleDateString(
-        undefined,
-        {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }
-      ),
-      "Closed Date": "October 21, 2024",
+      "Receive Date":new Date(grievance.date).toLocaleDateString("en-GB", {
+        day: "2-digit",     // To get the day as two digits (e.g., 24)
+        month: "short",     // To get the short form of the month (e.g., Aug)
+        year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+      }).replace(/ /g, ', '),
+      "Closed Date": "21,Oct,2024",
       "Status": grievance.applicationStatus,
     }));
 
@@ -275,18 +275,18 @@ const CompletedGrievance = () => {
     autoTable(doc, {
       head: [['Sr. No.', 'Inward No.', 'Subject', 'Complainer', 'Handled By', 'Complaint Sent to', 'Receive Date', 'Closed Date', 'Status']],
       body: grievances.map((grievance, index) => [
-        index + 1,
+        (index + 1 + offset).toString().padStart(2, '0'),
         grievance.inwardNo,
         grievance.subject,
         grievance.fullName,
         grievance.handledBy,
         grievance.complaintSentTo,
-        new Date(grievance.date).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        "October 21, 2024",
+        new Date(grievance.date).toLocaleDateString("en-GB", {
+          day: "2-digit",     
+          month: "short",     
+          year: "numeric",  
+        }).replace(/ /g, ', '),
+        "21,Oct,2024",
         grievance.applicationStatus,
       ]),
       styles: {
@@ -619,7 +619,7 @@ const CompletedGrievance = () => {
                             displayedGrievances.map((grievance, index) => (
 
                               <tr key={grievance.id} class="table-success">
-                                <td>  {(index + 1 + offset).toString().padStart(2, '0')}</td>
+                                <td> {(index + 1 + offset).toString().padStart(2, '0')}</td>
                                 <td>{grievance.inwardNo}</td>
                                 <td className="fw-semibold">
                                   <div className="d-flex align-items-center gap-3">
@@ -669,7 +669,7 @@ const CompletedGrievance = () => {
                                     </div>
                                   </div>
                                 </td>
-                                <td> {new Date(grievance.date).toLocaleDateString("en-GB", {
+                                <td>{new Date(grievance.date).toLocaleDateString("en-GB", {
                                   day: "2-digit",     // To get the day as two digits (e.g., 24)
                                   month: "short",     // To get the short form of the month (e.g., Aug)
                                   year: "numeric",    // To get the year as a four-digit number (e.g., 2024)

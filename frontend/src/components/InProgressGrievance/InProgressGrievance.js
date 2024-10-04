@@ -142,17 +142,17 @@ const InProgressGrievance = () => {
               <tbody>
                 ${grievances.map((grievance, index) => `
                   <tr>
-                    <td>${index + 1}</td>
+                    <td>${(index + 1 + offset).toString().padStart(2, '0')}</td>
                     <td>${grievance.inwardNo}</td>
                     <td>${grievance.subject}</td>
                     <td>${grievance.fullName}</td>
                     <td>${grievance.handledBy}</td>
                     <td>${grievance.complaintSentTo}</td>
-                    <td>${new Date(grievance.date).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}</td>
+                    <td>${new Date(grievance.date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",     // To get the day as two digits (e.g., 24)
+                                  month: "short",     // To get the short form of the month (e.g., Aug)
+                                  year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+                                }).replace(/ /g, ', ')}</td>
                     <td><span class="badge bg-danger">${grievance.applicationStatus}</span></td>
                   </tr>
                 `).join("")}
@@ -174,19 +174,27 @@ const InProgressGrievance = () => {
   
     const [showPopup, setShowPopup] = useState(false);
     const copyToClipboard = () => {
+      // Define table headings to match your HTML structure
+      const tableHeadings = 'Sr. No.\tInward No.\tSubject\tComplainer\tHandled By\tComplaint Sent to\tDate\tStatus';
+    
+      // Map through the grievances array and format the data
       const dataStr = grievances
         .map(
           (grievance, index) =>
-            `${index + 1}\t${grievance.inwardNo}\t${grievance.subject}\t${grievance.fullName}\t${grievance.handledBy}\t${grievance.complaintSentTo}\t${new Date(grievance.date).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}\t${grievance.applicationStatus}`
+            `${(index + 1 + offset).toString().padStart(2, '0')}\t${grievance.inwardNo}\t${grievance.subject}\t${grievance.fullName}\t${grievance.handledBy}\t${grievance.complaintSentTo}\t${new Date(grievance.date).toLocaleDateString("en-GB", {
+              day: "2-digit",     // To get the day as two digits (e.g., 24)
+              month: "short",     // To get the short form of the month (e.g., Aug)
+              year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+            }).replace(/ /g, ', ')}\t${grievance.applicationStatus}`
         )
         .join('\n');
-  
+    
+      // Combine the headings and data rows
+      const fullDataStr = `${tableHeadings}\n${dataStr}`;
+    
+      // Copy to clipboard
       navigator.clipboard
-        .writeText(dataStr)
+        .writeText(fullDataStr)
         .then(() => {
           setShowPopup(true); // Show popup when copied
           setTimeout(() => {
@@ -197,17 +205,18 @@ const InProgressGrievance = () => {
           console.error('Failed to copy data: ', err);
         });
     };
+    
   
   
     // Function to download CSV
     const downloadCSV = () => {
       const csvContent = "data:text/csv;charset=utf-8," +
         grievances.map(grievance =>
-          `${grievance.inwardNo},${grievance.subject},${grievance.fullName},${grievance.handledBy},${grievance.complaintSentTo},${new Date(grievance.date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })},${grievance.applicationStatus}`
+          `${grievance.inwardNo},${grievance.subject},${grievance.fullName},${grievance.handledBy},${grievance.complaintSentTo},${new Date(grievance.date).toLocaleDateString("en-GB", {
+            day: "2-digit",     // To get the day as two digits (e.g., 24)
+            month: "short",     // To get the short form of the month (e.g., Aug)
+            year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+          }).replace(/ /g, ', ')},${grievance.applicationStatus}`
         ).join("\n");
   
       const encodedUri = encodeURI(csvContent);
@@ -223,20 +232,17 @@ const InProgressGrievance = () => {
     const downloadExcel = () => {
       // 1. Add S.No. column with proper indexing
       const formattedGrievances = grievances.map((grievance, index) => ({
-        "S.No.": index + 1,
+        "S.No.": (index + 1 + offset).toString().padStart(2, '0'),
         "Inward No.": grievance.inwardNo,
         "Subject": grievance.subject,
         "Complainer": grievance.fullName,
         "Handled By": grievance.handledBy,
         "Complaint Sent to": grievance.complaintSentTo,
-        "Date":new Date(grievance.date).toLocaleDateString(
-          undefined,
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        ),
+        "Date":new Date(grievance.date).toLocaleDateString("en-GB", {
+          day: "2-digit",     // To get the day as two digits (e.g., 24)
+          month: "short",     // To get the short form of the month (e.g., Aug)
+          year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+        }).replace(/ /g, ', '),
         "Status": grievance.applicationStatus,
       }));
   
@@ -286,17 +292,17 @@ const InProgressGrievance = () => {
       autoTable(doc, {
         head: [['Sr. No.', 'Inward No.', 'Subject', 'Complainer', 'Handled By', 'Complaint Sent to', 'Date', 'Status']],
         body: grievances.map((grievance, index) => [
-          index + 1,
+          (index + 1 + offset).toString().padStart(2, '0'),
           grievance.inwardNo,
           grievance.subject,
           grievance.fullName,
           grievance.handledBy,
           grievance.complaintSentTo,
-          new Date(grievance.date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          new Date(grievance.date).toLocaleDateString("en-GB", {
+            day: "2-digit",     // To get the day as two digits (e.g., 24)
+            month: "short",     // To get the short form of the month (e.g., Aug)
+            year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+          }).replace(/ /g, ', '),
           grievance.applicationStatus,
         ]),
         styles: {
@@ -621,7 +627,7 @@ const InProgressGrievance = () => {
                         {displayedGrievances.length > 0 ? (
                             displayedGrievances.map((grievance, index) => (
                             <tr key={grievance.id} className="table-warning">
-                              <td className="text-center">{index + 1 + offset}</td>
+                              <td>{(index + 1 + offset).toString().padStart(2, '0')}</td>
                                 <td>{grievance.inwardNo}</td>
                                 <td className="fw-semibold">
                                 <div className="d-flex align-items-center gap-3">
@@ -671,14 +677,11 @@ const InProgressGrievance = () => {
                                    </div>
                                  </div>
                                 </td>
-                                <td>{new Date(grievance.date).toLocaleDateString(
-                                 undefined,
-                                 {
-                                   year: "numeric",
-                                   month: "long",
-                                   day: "numeric",
-                                 }
-                               )}</td>
+                                <td>{new Date(grievance.date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",     // To get the day as two digits (e.g., 24)
+                                  month: "short",     // To get the short form of the month (e.g., Aug)
+                                  year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+                                }).replace(/ /g, ', ')}</td>
                               <td>
                                 <span className="badge bg-warning">
                                   {grievance.applicationStatus}

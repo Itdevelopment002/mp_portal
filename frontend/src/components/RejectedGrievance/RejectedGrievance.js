@@ -22,7 +22,6 @@ const RejectedGrievance = () => {
   const fetchGrievances = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/grievances");
-      // Filter grievances where applicationStatus is "Rejected"
       const rejectedGrievances = response.data.filter(
         (grievance) => grievance.applicationStatus === "Rejected"
       );
@@ -130,17 +129,17 @@ const RejectedGrievance = () => {
             <tbody>
               ${grievances.map((grievance, index) => `
                 <tr>
-                  <td>${index + 1}</td>
+                  <td>${(index + 1 + offset).toString().padStart(2, '0')}</td>
                   <td>${grievance.inwardNo}</td>
                   <td>${grievance.subject}</td>
                   <td>${grievance.fullName}</td>
                   <td>${grievance.handledBy}</td>
                   <td>${grievance.complaintSentTo}</td>
-                  <td>${new Date(grievance.date).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}</td>
+                  <td>${new Date(grievance.date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",     // To get the day as two digits (e.g., 24)
+                                  month: "short",     // To get the short form of the month (e.g., Aug)
+                                  year: "numeric",    // To get the year as a four-digit number (e.g., 2024)
+                                }).replace(/ /g, ', ')}</td>
                   <td>August 30, 2024</td>
                   <td>Rejected Application Reason</td>
                   <td><span class="badge bg-danger">${grievance.applicationStatus}</span></td>
@@ -163,20 +162,25 @@ const RejectedGrievance = () => {
   // Copy Code
   const [showPopup, setShowPopup] = useState(false);
   const copyToClipboard = () => {
+    const tableHeadings = 'Sr. No.\tInward No.\tSubject\tComplainer\tHandled By\tComplaint Sent to\tReceive Date\tRejected Date\tReason\tStatus';
+  
     const dataStr = grievances
       .map(
         (grievance, index) =>
-          `${index + 1}\t${grievance.inwardNo}\t${grievance.subject}\t${grievance.fullName}\t${grievance.handledBy}\t${grievance.complaintSentTo}\t${new Date(grievance.date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}\t${'August 30, 2024'}\t${'Rejected Application Reason Description'}\t${grievance.applicationStatus}`
+          `${(index + 1 + offset).toString().padStart(2, '0')}\t${grievance.inwardNo}\t${grievance.subject}\t${grievance.fullName}\t${grievance.handledBy}\t${grievance.complaintSentTo}\t${new Date(grievance.date).toLocaleDateString("en-GB", {
+            day: "2-digit",     
+            month: "short",    
+            year: "numeric",    
+          }).replace(/ /g, ', ')}\t${'30,Aug,2024'}\t${'Rejected Application Reason Description'}\t${grievance.applicationStatus}`
       )
       .join('\n');
-
-
+  
+    // Combine the headings and data rows
+    const fullDataStr = `${tableHeadings}\n${dataStr}`;
+  
+    // Copy to clipboard
     navigator.clipboard
-      .writeText(dataStr)
+      .writeText(fullDataStr)
       .then(() => {
         setShowPopup(true);
         setTimeout(() => {
@@ -187,17 +191,19 @@ const RejectedGrievance = () => {
         console.error('Failed to copy data: ', err);
       });
   };
+  
+  
 
 
   // Function to download CSV
   const downloadCSV = () => {
     const csvContent = "data:text/csv;charset=utf-8," +
       grievances.map(grievance =>
-        `${grievance.inwardNo},${grievance.subject},${grievance.fullName},${grievance.handledBy},${grievance.complaintSentTo},${new Date(grievance.date).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })},${'August 30, 2024'},${'Rejected Application Reason Description'},${grievance.applicationStatus}`
+        `${grievance.inwardNo},${grievance.subject},${grievance.fullName},${grievance.handledBy},${grievance.complaintSentTo},${new Date(grievance.date).toLocaleDateString("en-GB", {
+          day: "2-digit",     
+          month: "short",     
+          year: "numeric",    
+        }).replace(/ /g, ', ')},${'30,aug,2024'},${'Rejected Application Reason Description'},${grievance.applicationStatus}`
       ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -212,21 +218,18 @@ const RejectedGrievance = () => {
   // Excel download Code
   const downloadExcel = () => {
     const formattedGrievances = grievances.map((grievance, index) => ({
-      "S.No.": index + 1,
+      "S.No.": (index + 1 + offset).toString().padStart(2, '0'),
       "Inward No.": grievance.inwardNo,
       "Subject": grievance.subject,
       "Complainer": grievance.fullName,
       "Handled By": grievance.handledBy,
       "Complaint Sent to": grievance.complaintSentTo,
-      "Receive Date": new Date(grievance.date).toLocaleDateString(
-        undefined,
-        {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }
-      ),
-      "Rejected Date": "August 30, 2024",
+      "Receive Date": new Date(grievance.date).toLocaleDateString("en-GB", {
+        day: "2-digit",     
+        month: "short",     
+        year: "numeric",    
+      }).replace(/ /g, ', '),
+      "Rejected Date": "30,Aug,2024",
       "Reason": "Rejected Application Reason",
       "Status": grievance.applicationStatus,
     }));
@@ -259,32 +262,30 @@ const RejectedGrievance = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Title
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 0);
 
-    // Calculate the center position for the title text
     const title = 'Citizen Grievance Management System';
     const titleWidth = doc.getTextWidth(title);
-    const titleXPosition = (pageWidth - titleWidth) / 2; // Center the title text
+    const titleXPosition = (pageWidth - titleWidth) / 2; 
 
-    doc.text(title, titleXPosition, 15); // Title text in the center
+    doc.text(title, titleXPosition, 15);
 
     autoTable(doc, {
       head: [['Sr. No.', 'Inward No.', 'Subject', 'Complainer', 'Handled By', 'Complaint Sent to', 'Receive Date', 'Rejected Date', 'Reason', 'Status']],
       body: grievances.map((grievance, index) => [
-        index + 1,
+        (index + 1 + offset).toString().padStart(2, '0'),
         grievance.inwardNo,
         grievance.subject,
         grievance.fullName,
         grievance.handledBy,
         grievance.complaintSentTo,
-        new Date(grievance.date).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        "August 30, 2024",
+        new Date(grievance.date).toLocaleDateString("en-GB", {
+          day: "2-digit",     
+          month: "short",     
+          year: "numeric",   
+        }).replace(/ /g, ', '),
+        "30,Aug,2024",
         "Rejected Application Reason",
         grievance.applicationStatus,
       ]),
@@ -644,7 +645,7 @@ const RejectedGrievance = () => {
                           {displayedGrievances.length > 0 ? (
                             displayedGrievances.map((grievance, index) => (
                               <tr key={grievance.id} class="table-danger">
-                                <td className="text-center">{index + 1+offset}</td>
+                                <td>{(index + 1 + offset).toString().padStart(2, '0')}</td>
                                 <td>{grievance.inwardNo}</td>
                                 <td className="fw-semibold">
                                   <div className="d-flex align-items-center gap-3">
@@ -694,14 +695,11 @@ const RejectedGrievance = () => {
                                     </div>
                                   </div>
                                 </td>
-                                <td>{new Date(grievance.date).toLocaleDateString(
-                                  undefined,
-                                  {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  }
-                                )}</td>
+                                <td>{new Date(grievance.date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",    
+                                  month: "short",     
+                                  year: "numeric",   
+                                }).replace(/ /g, ', ')}</td>
                                 <td>August 30, 2024</td>
                                 <td>Rejected Application Reason Description</td>
                                 <td>

@@ -1,5 +1,5 @@
 {
-  "name": "mp_portal",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -32,6 +32,7 @@
     "sass": "^1.79.1",
     "sweetalert2": "^11.14.1",
     "web-vitals": "^2.1.4",
+    "webpack-dev-server": "^5.1.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {
