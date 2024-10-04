@@ -63,10 +63,11 @@ const AddNewGrievance = () => {
     if (!formData.inwardNo.trim()) {
       newError.inwardNo = "*Inward number is required";
       isValid = false;
-    } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(formData.inwardNo)) {
-      newError.inwardNo = "*Inward number must contain both letters and numbers";
+    } else if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9/ -]*$/.test(formData.inwardNo)) {
+      newError.inwardNo = "*Inward number must contain both letters and numbers, and can include '/' and '-'";
       isValid = false;
     }
+
 
     if (!formData.subject) {
       newError.subject = "*Subject is required";
@@ -145,13 +146,7 @@ const AddNewGrievance = () => {
       newError.date = "*Please enter a valid date";
       isValid = false;
     }
-  //  else{
-  //     const dateValue = new Date(formData.date);
-  //     if (isNaN(dateValue.getTime())) {
-  //       newError.date = "*Please enter a valid date";
-  //       isValid = false;
-  //     }
-  //   }
+
 
     setError(newError);
     return isValid;
@@ -254,19 +249,18 @@ const AddNewGrievance = () => {
 
     // Common regex for alphabetic fields
     const alphaRegex = /^[A-Za-z\s]*$/;
-    // Regex for mobile number (10 digits)
-    const mobileRegex = /^[0-9]{10}$/;
-    // Regex for pincode (6 digits)
-    const pincodeRegex = /^[0-9]{6}$/;
+    
+    
 
+    
     if (name === "inwardNo") {
 
       setFormData({ ...formData, [name]: value });
 
-      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(value) || value === "") {
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9/ -]*$/.test(value) || value === "") {
         newError[name] = "";
       } else {
-        newError[name] = "*Inward number must contain both letters and numbers";
+        newError[name] = "*Inward number must contain both letters and numbers, and can include '/' and '-'";
       }
     }
 

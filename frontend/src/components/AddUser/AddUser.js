@@ -19,7 +19,7 @@ const AddUser = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // To control the edit modal
   const [deleteId, setDeleteId] = useState(null);
-  const[Error, setError]=useState({
+  const [Error, setError] = useState({
     name: "",
     mobile: "",
     user_permission: "",
@@ -28,22 +28,22 @@ const AddUser = () => {
     confirmPassword: "",
   });
 
-  const validateForm=()=>{
-    const newError={name:"",mobile: "",user_permission: "", username: "",password: "",confirmPassword: ""};
-    let isValid=true;
-  
-    if(!formData.name){
-      newError.name="*Subject name is required";
-      isValid=false;
+  const validateForm = () => {
+    const newError = { name: "", mobile: "", user_permission: "", username: "", password: "", confirmPassword: "" };
+    let isValid = true;
+
+    if (!formData.name) {
+      newError.name = "*Subject name is required";
+      isValid = false;
     }
 
-    if(!formData.username){
-      newError.username="*User name is required";
-      isValid=false;
+    if (!formData.username) {
+      newError.username = "*User name is required";
+      isValid = false;
     }
-    if(!formData.user_permission){
-      newError.user_permission="*User permission is required";
-      isValid=false;
+    if (!formData.user_permission) {
+      newError.user_permission = "*User permission is required";
+      isValid = false;
     }
     if (!formData.mobile) {
       newError.mobile = "*Mobile number is required";
@@ -56,27 +56,32 @@ const AddUser = () => {
     if (!formData.password) {
       newError.password = "*Password is required";
       isValid = false;
-    } else if (formData.password.length < 8) {
-      newError.password = "*Password must be at least 8 characters";
-      isValid = false;
+
     } else if (!/[A-Za-z]/.test(formData.password) || !/\d/.test(formData.password)) {
-      newError.password = "*Password must include both letters and numbers";
+      newError.password = "*Password must contain both letters and numbers";
+      isValid = false;
+
+    } else if (formData.password.length < 8 || formData.password.length > 15) {
+      newError.password = "*Password must be between 8 and 15 characters long";
+      isValid = false;
+
+    } else {
+      newError.password = "";  // Clear the error if the password is valid
+    }
+
+    if (!formData.confirmPassword) {
+      newError.confirmPassword = "*COnfirm password number is required";
       isValid = false;
     }
 
-    if(!formData.confirmPassword){
-      newError.confirmPassword="*COnfirm password number is required";
-      isValid=false;
-    }
 
-    
-  
+
     setError(newError);
     return isValid;
   }
 
-  const handleFocus=(field)=>{
-    setError((prevError)=>({...prevError,[field]:""}));
+  const handleFocus = (field) => {
+    setError((prevError) => ({ ...prevError, [field]: "" }));
   }
 
   const fetchUsers = async () => {
@@ -94,44 +99,70 @@ const AddUser = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let newError={};
-  
-    if (name === "name" || name === "subject" ||name === "user_permission" ||name === "username") {
+    let newError = {};
+
+    if (name === "name" || name === "subject" || name === "user_permission" || name === "username") {
       if (/^[A-Za-z\s]*$/.test(value) || value === "") {
         setFormData({ ...formData, [name]: value });
       }
     }
-  
-    
+
+
     else if (name === "mobile") {
       if (/^[0-9]*$/.test(value) || value === "") {
         setFormData({ ...formData, [name]: value });
       }
-      else{
+      else {
         newError[name] = `*Only numbers are allowed for ${name}`;
       }
     }
-        
-    if (name === "password" || name === "confirmPassword") {
+
+    if (name === "password") {
+      // Set the form data with the entered password
       setFormData({ ...formData, [name]: value });
-  
-      // Validation for both letters and numbers with a max of 15 characters
-      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9]*$/.test(value) && value.length <= 15 || value === "") {
+
+      if (/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,15}$/.test(value)) {
+
         newError[name] = "";
       } else {
-        newError[name] = "*Password must contain both letters and numbers, and be up to 15 characters long";
-       
+
+        newError[name] = "*Password must be 8-15 characters long, and contain both letters and numbers";
       }
     }
-  
-   
-   
+
+    if (name === "confirmPassword") {
+
+      setFormData({ ...formData, [name]: value });
+
+
+      if (/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,15}$/.test(value)) {
+
+        newError[name] = "";
+      } else {
+
+        newError[name] = "*Password must be 8-15 characters long, and contain both letters and numbers";
+      }
+
+
+      if (formData.password && value !== formData.password) {
+        newError["confirmPassword"] = "*Passwords do not match";
+      } else {
+        newError["confirmPassword"] = "";
+      }
+    }
+
+
+
+
+
+
+    setError((prevError) => ({ ...prevError, ...newError }));
   };
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(!validateForm()){
+    if (!validateForm()) {
       return;
     }
 
@@ -234,7 +265,7 @@ const AddUser = () => {
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="Enter User Full Name"
-                          onFocus={()=>handleFocus('name')}
+                          onFocus={() => handleFocus('name')}
                         />
                         {Error.name && <p style={{ color: "red", fontSize: "11px" }}>{Error.name}</p>}
 
@@ -252,7 +283,7 @@ const AddUser = () => {
                           value={formData.mobile}
                           onChange={handleChange}
                           placeholder="Enter Mobile No."
-                          onFocus={()=>handleFocus('mobile')}
+                          onFocus={() => handleFocus('mobile')}
                         />
                         {Error.mobile && <p style={{ color: "red", fontSize: "11px" }}>{Error.mobile}</p>}
 
@@ -267,7 +298,7 @@ const AddUser = () => {
                           name="user_permission"
                           value={formData.user_permission}
                           onChange={handleChange}
-                          onFocus={()=>handleFocus('user_permission')}
+                          onFocus={() => handleFocus('user_permission')}
                         >
                           <option value="">Select user permission</option>
                           <option value="User">User</option>
@@ -288,7 +319,7 @@ const AddUser = () => {
                           value={formData.username}
                           onChange={handleChange}
                           placeholder="Enter User Name"
-                          onFocus={()=>handleFocus('username')}
+                          onFocus={() => handleFocus('username')}
                         />
                         {Error.username && <p style={{ color: "red", fontSize: "11px" }}>{Error.username}</p>}
 
@@ -305,10 +336,10 @@ const AddUser = () => {
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Enter User Password"
-                          onFocus={()=>handleFocus('password')}
+                          onFocus={() => handleFocus('password')}
                         />
                         {Error.password && <p style={{ color: "red", fontSize: "11px" }}>{Error.password}</p>}
-                        
+
                       </div>
                       <div class="col-xl-4 color-selection">
                         <label for="product-color-add" class="form-label">
@@ -322,7 +353,7 @@ const AddUser = () => {
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           placeholder="Enter Confirm Password"
-                          onFocus={()=>handleFocus('confirmPassword')}
+                          onFocus={() => handleFocus('confirmPassword')}
                         />
                         {Error.confirmPassword && <p style={{ color: "red", fontSize: "11px" }}>{Error.confirmPassword}</p>}
 
@@ -499,7 +530,7 @@ const AddUser = () => {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="Enter Confirm Password"
-                      onFocus={()=>handleFocus('confirmPassword')}
+                      onFocus={() => handleFocus('confirmPassword')}
                     />
                     {Error.confirmPassword && <p style={{ color: "red", fontSize: "11px" }}>{Error.confirmPassword}</p>}
 

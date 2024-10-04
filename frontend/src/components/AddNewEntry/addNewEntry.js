@@ -35,8 +35,8 @@ const AddEntryPage = () => {
     if (!formData.inwardNo.trim()) {
       newError.inwardNo = "*Inward number is required";
       isValid = false;
-    } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(formData.inwardNo)) {
-      newError.inwardNo = "*Inward number must contain both letters and numbers";
+    } else if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9/ -]*$/.test(formData.inwardNo)) {
+      newError.inwardNo = "*Inward number must contain both letters and numbers, and can include '/' and '-'";
       isValid = false;
     }
 
@@ -123,10 +123,10 @@ const AddEntryPage = () => {
 
       setFormData({ ...formData, [name]: value });
 
-      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(value) || value === "") {
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9/ -]*$/.test(value) || value === "") {
         newError[name] = "";
       } else {
-        newError[name] = "*Inward number must contain both letters and numbers";
+        newError[name] = "*Inward number must contain both letters and numbers, and can include '/' and '-'";
       }
     }
 
