@@ -35,6 +35,134 @@ const AddNewGrievance = () => {
     remark: "",
   });
 
+  const [Error, setError] = useState({
+    inwardNo: "",
+    subject: "",
+    fullName: "",
+    mobileNo: "",
+    boothNo: "",
+    handledBy: "",
+    complaintSentTo: "",
+    date: "",
+    applicationStatus: "",
+    district: "",
+    taluka: "",
+    village: "",
+    city: "",
+    pincode: "",
+    whatsappGroup: "",
+    remark: "",
+  })
+
+
+  const validateForm = () => {
+    const newError = { inwardNo: "", subject: "", fullName: "", mobileNo: "", boothNo: "", handledBy: "", complaintSentTo: "", date: "", applicationStatus: "", district: "", taluka: "", village: "", city: "", pincode: "", whatsappGroup: "", remark: "", };
+    let isValid = true;
+
+    // Validate 'inwardNo' (must be non-empty and alphanumeric)
+    if (!formData.inwardNo.trim()) {
+      newError.inwardNo = "*Inward number is required";
+      isValid = false;
+    } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(formData.inwardNo)) {
+      newError.inwardNo = "*Inward number must contain both letters and numbers";
+      isValid = false;
+    }
+
+    if (!formData.subject) {
+      newError.subject = "*Subject is required";
+      isValid = false;
+    }
+
+    if (!formData.fullName) {
+      newError.fullName = "*Full name is required";
+      isValid = false;
+    }
+
+    if (!formData.boothNo) {
+      newError.boothNo = "*BoothNo is required";
+      isValid = false;
+    }
+
+    if (!formData.handledBy) {
+      newError.handledBy = "*This field is required";
+      isValid = false;
+    }
+
+    if (!formData.complaintSentTo) {
+      newError.complaintSentTo = "*Complaint is required";
+      isValid = false;
+    }
+
+    if (!formData.applicationStatus) {
+      newError.applicationStatus = "*Application Status is required";
+      isValid = false;
+    }
+
+    if (!formData.district) {
+      newError.district = "*District is required";
+      isValid = false;
+    }
+    if (!formData.taluka) {
+      newError.taluka = "*Taluka is required";
+      isValid = false;
+    }
+
+    if (!formData.village) {
+      newError.village = "*Village is required";
+      isValid = false;
+    }
+
+    if (!formData.city) {
+      newError.city = "*City is required";
+      isValid = false;
+    }
+
+    if (!formData.pincode) {
+      newError.pincode = "*Pinocde is required";
+      isValid = false;
+    }
+
+    if (!formData.whatsappGroup) {
+      newError.whatsappGroup = "*This is required";
+      isValid = false;
+    }
+
+    if (!formData.remark) {
+      newError.remark = "*Remark is required";
+      isValid = false;
+    }
+
+    const mobilePattern = /^[0-9]{10}$/;
+    if (!formData.mobileNo) {
+      newError.mobileNo = "*Mobile number is required.";
+      isValid = false;
+    } else if (!mobilePattern.test(formData.mobileNo)) {
+      newError.mobileNo = "*Mobile number must be 10 digits.";
+      isValid = false;
+    }
+    const dateValue = new Date(formData.date);
+    if (isNaN(dateValue.getTime())) {
+      newError.date = "*Please enter a valid date";
+      isValid = false;
+    }
+  //  else{
+  //     const dateValue = new Date(formData.date);
+  //     if (isNaN(dateValue.getTime())) {
+  //       newError.date = "*Please enter a valid date";
+  //       isValid = false;
+  //     }
+  //   }
+
+    setError(newError);
+    return isValid;
+  };
+  //handle focus
+  const handleFocus = (field) => {
+    setError((prevError) => ({ ...prevError, [field]: "" }));
+  }
+
+
+
   const fetchSubjects = async () => {
     try {
       const response = await axios.get(
@@ -122,11 +250,67 @@ const AddNewGrievance = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let newError = {}; // Initialize newError as an empty object
+
+    // Common regex for alphabetic fields
+    const alphaRegex = /^[A-Za-z\s]*$/;
+    // Regex for mobile number (10 digits)
+    const mobileRegex = /^[0-9]{10}$/;
+    // Regex for pincode (6 digits)
+    const pincodeRegex = /^[0-9]{6}$/;
+
+    if (name === "inwardNo") {
+
+      setFormData({ ...formData, [name]: value });
+
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9\s]*$/.test(value) || value === "") {
+        newError[name] = "";
+      } else {
+        newError[name] = "*Inward number must contain both letters and numbers";
+      }
+    }
+
+    if (name === "date") {
+      const dateValue = new Date(value);
+      if (!isNaN(dateValue.getTime())) {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
+
+    // Validate input based on the field name
+    if (name === "fullName" || name === "subject" || name === "handledBy" ||
+      name === "complaintSentTo" || name === "district" ||
+      name === "taluka" || name === "village" || name === "city" || name==="whatsappGroup" ||name==="applicationStatus"||name==="remark") {
+      
+      if (alphaRegex.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+        newError[name] = ""; 
+      } else {
+        newError[name] = `*Only alphabets are allowed for ${name}`;
+      }
+    }
+   
+    else if (name === "mobileNo" || name === "pincode" || name === "boothNo") {
+      
+      if (/^[0-9]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+        newError[name] = "";
+        
+      }
+      else{
+        newError[name] = `*Only numbers are allowed for ${name}`;
+      }
+    }
+    setError((prevError) => ({ ...prevError, ...newError }));
+
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       await axios.post("http://localhost:5000/api/grievances", formData);
       resetForm();
@@ -212,8 +396,10 @@ const AddNewGrievance = () => {
                           value={formData.inwardNo}
                           onChange={handleChange}
                           placeholder="IN/0001/23-8-24"
-                          required
+                          onFocus={() => handleFocus('inwardNo')}
                         />
+                        {Error.inwardNo && <p style={{ color: "red", fontSize: "11px" }}>{Error.inwardNo}</p>}
+
                       </div>
                       <div className="col-xl-6 col-md-6">
                         <label
@@ -228,7 +414,7 @@ const AddNewGrievance = () => {
                           name="subject"
                           value={formData.subject}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('subject')}
                         >
                           <option selected>Select Subject</option>
                           {subjects.map((subject, index) => (
@@ -237,6 +423,8 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.subject && <p style={{ color: "red", fontSize: "11px" }}>{Error.subject}</p>}
+
                       </div>
                       <div class="col-xl-6 col-md-6">
                         <label for="input-rounded" class="form-label">
@@ -250,7 +438,10 @@ const AddNewGrievance = () => {
                           value={formData.fullName}
                           onChange={handleChange}
                           placeholder="Enter Full Name"
+                          onFocus={() => handleFocus('fullName')}
                         />
+                        {Error.fullName && <p style={{ color: "red", fontSize: "11px" }}>{Error.fullName}</p>}
+
                       </div>
                       <div class="col-xl-6 col-md-6">
                         <label for="input-rounded" class="form-label">
@@ -259,12 +450,16 @@ const AddNewGrievance = () => {
                         <input
                           type="text"
                           class="form-control"
+                          maxLength={10}
                           id="input-rounded"
                           name="mobileNo"
                           value={formData.mobileNo}
                           onChange={handleChange}
                           placeholder="Enter Mobile No."
+                          onFocus={() => handleFocus('mobileNo')}
                         />
+                        {Error.mobileNo && <p style={{ color: "red", fontSize: "11px" }}>{Error.mobileNo}</p>}
+
                       </div>
                       <div className="col-xl-6 col-md-6">
                         <label
@@ -279,7 +474,7 @@ const AddNewGrievance = () => {
                           name="boothNo"
                           value={formData.boothNo}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('boothNo')}
                         >
                           <option selected>Select Booth No.</option>
                           {booths.map((booth, index) => (
@@ -288,6 +483,8 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.boothNo && <p style={{ color: "red", fontSize: "11px" }}>{Error.boothNo}</p>}
+
                       </div>
                       <div className="col-xl-6 col-md-6">
                         <label
@@ -302,7 +499,7 @@ const AddNewGrievance = () => {
                           name="handledBy"
                           value={formData.handledBy}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('handledBy')}
                         >
                           <option selected>Select Handler</option>
                           {assistants.map((assistant, index) => (
@@ -311,6 +508,8 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.handledBy && <p style={{ color: "red", fontSize: "11px" }}>{Error.handledBy}</p>}
+
                       </div>
                       <div class="col-xl-4 col-md-6">
                         <label htmlFor="complaintSentTo" className="form-label">
@@ -322,7 +521,7 @@ const AddNewGrievance = () => {
                           name="complaintSentTo"
                           value={formData.complaintSentTo}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('complaintSentTo')}
                         >
                           <option selected>Select Sender</option>
                           {senders.map((sender, index) => (
@@ -331,6 +530,8 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.complaintSentTo && <p style={{ color: "red", fontSize: "11px" }}>{Error.complaintSentTo}</p>}
+
                       </div>
                       <div className="col-xl-4 col-md-4">
                         <div className="form-group">
@@ -346,7 +547,8 @@ const AddNewGrievance = () => {
                               id="datePicker"
                               className="flatpickr-input form-control"
                               placeholder="Human friendly dates"
-                              value={formData.date} 
+                              value={formData.date}
+                              onFocus={() => handleFocus('date')}
                               options={{
                                 dateFormat: "F j, Y",
                                 monthSelectorType: "dropdown",
@@ -361,7 +563,10 @@ const AddNewGrievance = () => {
                                 })
                               }
                             />
+
                           </div>
+                          {Error.date && <p style={{ color: "red", fontSize: "11px" }}>{Error.date}</p>}
+
                         </div>
                       </div>
                       <div class="col-xl-4 col-md-6">
@@ -374,7 +579,7 @@ const AddNewGrievance = () => {
                           name="applicationStatus"
                           value={formData.applicationStatus}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('applicationStatus')}
                         >
                           <option selected>Select Status</option>
                           {status.map((status, index) => (
@@ -383,7 +588,10 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.applicationStatus && <p style={{ color: "red", fontSize: "11px" }}>{Error.applicationStatus}</p>}
+
                       </div>
+
                       <div class="col-xl-4 col-md-6">
                         <label for="input-rounded" class="form-label">
                           Disctrict <span class="text-danger">*</span>
@@ -396,7 +604,10 @@ const AddNewGrievance = () => {
                           value={formData.district}
                           onChange={handleChange}
                           placeholder="Enter Disctrict"
+                          onFocus={() => handleFocus('district')}
                         />
+                        {Error.district && <p style={{ color: "red", fontSize: "11px" }}>{Error.district}</p>}
+
                       </div>
                       <div class="col-xl-4 col-md-6">
                         <label htmlFor="taluka" class="form-label">
@@ -408,7 +619,7 @@ const AddNewGrievance = () => {
                           name="taluka"
                           value={formData.taluka}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('taluka')}
                         >
                           <option selected>Select Taluka</option>
                           {talukas.map((taluka, index) => (
@@ -417,6 +628,8 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.taluka && <p style={{ color: "red", fontSize: "11px" }}>{Error.taluka}</p>}
+
                       </div>
                       <div class="col-xl-4 col-md-6">
                         <label for="input-rounded" class="form-label">
@@ -430,7 +643,10 @@ const AddNewGrievance = () => {
                           value={formData.village}
                           onChange={handleChange}
                           placeholder="Enter Village"
+                          onFocus={() => handleFocus('village')}
                         />
+                        {Error.village && <p style={{ color: "red", fontSize: "11px" }}>{Error.village}</p>}
+
                       </div>
                       <div class="col-xl-2 col-md-6">
                         <label for="input-rounded" class="form-label">
@@ -444,7 +660,10 @@ const AddNewGrievance = () => {
                           value={formData.city}
                           onChange={handleChange}
                           placeholder="Enter city"
+                          onFocus={() => handleFocus('city')}
                         />
+                        {Error.city && <p style={{ color: "red", fontSize: "11px" }}>{Error.city}</p>}
+
                       </div>
                       <div class="col-xl-2 col-md-6">
                         <label for="input-rounded" class="form-label">
@@ -454,11 +673,15 @@ const AddNewGrievance = () => {
                           type="text"
                           class="form-control"
                           id="input-rounded"
+                          maxLength={6}
                           name="pincode"
                           value={formData.pincode}
                           onChange={handleChange}
                           placeholder="Enter Pincode"
+                          onFocus={() => handleFocus('pincode')}
                         />
+                        {Error.pincode && <p style={{ color: "red", fontSize: "11px" }}>{Error.pincode}</p>}
+
                       </div>
                       <div class="col-xl-2 col-md-6">
                         <label htmlFor="whatsappGroup" class="form-label">
@@ -470,7 +693,7 @@ const AddNewGrievance = () => {
                           name="whatsappGroup"
                           value={formData.whatsappGroup}
                           onChange={handleChange}
-                          required
+                          onFocus={() => handleFocus('whatsappGroup')}
                         >
                           <option selected>Select Whatsapp Group</option>
                           {groups.map((group, index) => (
@@ -479,6 +702,8 @@ const AddNewGrievance = () => {
                             </option>
                           ))}
                         </select>
+                        {Error.whatsappGroup && <p style={{ color: "red", fontSize: "11px" }}>{Error.whatsappGroup}</p>}
+
                       </div>
                       <div class="col-xl-6">
                         <label for="input-rounded" class="form-label">
@@ -492,7 +717,10 @@ const AddNewGrievance = () => {
                           value={formData.remark}
                           onChange={handleChange}
                           placeholder="Enter Remark"
+                          onFocus={() => handleFocus('remark')}
                         />
+                        {Error.remark && <p style={{ color: "red", fontSize: "11px" }}>{Error.remark}</p>}
+
                       </div>
                     </div>
                     <div className="mt-3">
