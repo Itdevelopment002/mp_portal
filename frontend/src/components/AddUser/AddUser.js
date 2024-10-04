@@ -150,12 +150,6 @@ const AddUser = () => {
         newError["confirmPassword"] = "";
       }
     }
-
-
-
-
-
-
     setError((prevError) => ({ ...prevError, ...newError }));
   };
 

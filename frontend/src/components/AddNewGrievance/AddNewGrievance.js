@@ -59,14 +59,15 @@ const AddNewGrievance = () => {
     const newError = { inwardNo: "", subject: "", fullName: "", mobileNo: "", boothNo: "", handledBy: "", complaintSentTo: "", date: "", applicationStatus: "", district: "", taluka: "", village: "", city: "", pincode: "", whatsappGroup: "", remark: "", };
     let isValid = true;
 
-    // Validate 'inwardNo' (must be non-empty and alphanumeric)
     if (!formData.inwardNo.trim()) {
       newError.inwardNo = "*Inward number is required";
       isValid = false;
-    } else if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9/ -]*$/.test(formData.inwardNo)) {
+    } 
+    // Adjust the regex to allow letters, numbers, '/' and '-' while ensuring both letters and numbers are present
+    else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d/-]+$/.test(formData.inwardNo)) {
       newError.inwardNo = "*Inward number must contain both letters and numbers, and can include '/' and '-'";
       isValid = false;
-    }
+    } 
 
 
     if (!formData.subject) {
@@ -256,14 +257,15 @@ const AddNewGrievance = () => {
     if (name === "inwardNo") {
 
       setFormData({ ...formData, [name]: value });
-
-      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9/ -]*$/.test(value) || value === "") {
-        newError[name] = "";
+    
+      // Validation for inwardNo: must contain both letters and numbers, no other special characters
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/.test(value)) {
+        newError[name] = "";  // Clear the error if input is valid
       } else {
-        newError[name] = "*Inward number must contain both letters and numbers, and can include '/' and '-'";
+        newError[name] = "*Inward number must contain both letters and numbers, and no special characters";
       }
+    
     }
-
     if (name === "date") {
       const dateValue = new Date(value);
       if (!isNaN(dateValue.getTime())) {
