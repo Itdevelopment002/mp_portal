@@ -45,19 +45,27 @@ const AddUser = () => {
       newError.user_permission="*User permission is required";
       isValid=false;
     }
-
-    if(!formData.mobile){
-      newError.mobile="*mobile number is required";
-      isValid=false;
+    if (!formData.mobile) {
+      newError.mobile = "*Mobile number is required";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(formData.mobile)) { // Checks if the mobile number is exactly 10 digits
+      newError.mobile = "*Mobile number must be 10 digits";
+      isValid = false;
     }
 
-    if(!formData.password){
-      newError.password="*Password is required";
-      isValid=false;
+    if (!formData.password) {
+      newError.password = "*Password is required";
+      isValid = false;
+    } else if (formData.password.length < 8) {
+      newError.password = "*Password must be at least 8 characters";
+      isValid = false;
+    } else if (!/[A-Za-z]/.test(formData.password) || !/\d/.test(formData.password)) {
+      newError.password = "*Password must include both letters and numbers";
+      isValid = false;
     }
 
     if(!formData.confirmPassword){
-      newError.confirmPassword="*mobile number is required";
+      newError.confirmPassword="*COnfirm password number is required";
       isValid=false;
     }
 
@@ -86,8 +94,40 @@ const AddUser = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let newError={};
+  
+    if (name === "name" || name === "subject" ||name === "user_permission" ||name === "username") {
+      if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+      }
+    }
+  
+    
+    else if (name === "mobile") {
+      if (/^[0-9]*$/.test(value) || value === "") {
+        setFormData({ ...formData, [name]: value });
+      }
+      else{
+        newError[name] = `*Only numbers are allowed for ${name}`;
+      }
+    }
+        
+    if (name === "password" || name === "confirmPassword") {
+      setFormData({ ...formData, [name]: value });
+  
+      // Validation for both letters and numbers with a max of 15 characters
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9]*$/.test(value) && value.length <= 15 || value === "") {
+        newError[name] = "";
+      } else {
+        newError[name] = "*Password must contain both letters and numbers, and be up to 15 characters long";
+       
+      }
+    }
+  
+   
+   
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -206,6 +246,7 @@ const AddUser = () => {
                         <input
                           type="text"
                           class="form-control"
+                          maxLength={10}
                           id="input-rounded"
                           name="mobile"
                           value={formData.mobile}
@@ -458,7 +499,10 @@ const AddUser = () => {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="Enter Confirm Password"
+                      onFocus={()=>handleFocus('confirmPassword')}
                     />
+                    {Error.confirmPassword && <p style={{ color: "red", fontSize: "11px" }}>{Error.confirmPassword}</p>}
+
                   </div>
                 </div>
               </div>
